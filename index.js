@@ -16,7 +16,7 @@ client.connect(err => {
 
     
 });
-app.post('/addBooks', (req, res) => {
+app.get('/addBooks', (req, res) => {
     res.send('books are added')
 })
 
