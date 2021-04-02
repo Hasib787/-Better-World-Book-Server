@@ -14,10 +14,11 @@ app.use(cors());
 client.connect(err => {
     const booksCollection = client.db("bookShop").collection("books");
 
-    app.post('/addBooks', (req, res) => {
-        res.send('books are added')
-    })
+    
 });
+app.post('/addBooks', (req, res) => {
+    res.send('books are added')
+})
 
 app.get('/', (req, res) => {
     res.send('Hello World!')
