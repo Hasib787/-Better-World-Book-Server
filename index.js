@@ -14,11 +14,18 @@ app.use(cors());
 client.connect(err => {
     const booksCollection = client.db("bookShop").collection("books");
 
+    app.post('/addBooks', (req, res) => {
+        const newEvent = req.body;
+        console.log('adding new event', newEvent);
+        booksCollection.insertOne(newEvent)
+        .then(result => {
+            console.log('inserted count', result.insertedCount)
+            res.send(result.insertedCount > 0)
+        })
+})
     
 });
-app.get('/addBooks', (req, res) => {
-    res.send('books are added')
-})
+
 
 app.get('/', (req, res) => {
     res.send('Hello World!')
