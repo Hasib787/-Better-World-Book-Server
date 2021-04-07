@@ -14,15 +14,14 @@ app.use(cors());
 client.connect(err => {
     const booksCollection = client.db("bookShop").collection("books");
 
-    app.get('/events',(req, res) => {
+    app.get('/books',(req, res) => {
         booksCollection.find()
         .toArray((err, items) => {
             res.send(items);
-            console.log('form database', items);
         })
     })
 
-    app.post('/addBooks', (req, res) => {
+    app.post('/addbooks', (req, res) => {
         const newEvent = req.body;
         console.log('adding new event', newEvent);
         booksCollection.insertOne(newEvent)
