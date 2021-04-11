@@ -1,5 +1,6 @@
 const express = require('express')
 const MongoClient = require('mongodb').MongoClient;
+const ObjectID = require('mongodb').ObjectID;
 const bodyParser = require('body-parser');
 const cors = require('cors');
 require('dotenv').config()
@@ -22,14 +23,21 @@ client.connect(err => {
     })
 
     app.post('/addbooks', (req, res) => {
-        const newEvent = req.body;
-        console.log('adding new event', newEvent);
-        booksCollection.insertOne(newEvent)
+        const newbook = req.body;
+        console.log('adding new event', newbook);
+        booksCollection.insertOne(newbook)
         .then(result => {
             console.log('inserted count', result.insertedCount)
             res.send(result.insertedCount > 0)
         })
 })
+
+    app.delete('/deletebook/:id', (req, res)=> {
+        const id = ObjectID(req.params.id);
+        console.log("delete this",id);
+        booksCollection.findOneAndDelete({_id: id})
+        .then(documents => res.send(!!documents.value))
+    })
     
 });
 
