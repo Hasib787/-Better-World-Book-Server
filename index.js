@@ -36,7 +36,7 @@ client.connect(err => {
         const id = ObjectID(req.params.id);
         console.log("delete this",id);
         booksCollection.findOneAndDelete({_id: id})
-        .then(documents => res.send(!!documents.value))
+        .then(documents => res.send(documents.deletedCount > 0))
     })
     
 });
