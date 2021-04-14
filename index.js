@@ -2,6 +2,7 @@ const express = require('express')
 const MongoClient = require('mongodb').MongoClient;
 const ObjectID = require('mongodb').ObjectID;
 const bodyParser = require('body-parser');
+const admin = require('firebase-admin');
 const cors = require('cors');
 require('dotenv').config()
 
@@ -11,6 +12,14 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 const app = express()
 app.use(bodyParser.json());
 app.use(cors());
+
+
+const serviceAccount = require("./book-shop-site-firebase-adminsdk-hh6i9-74c4ef5561.json");
+
+admin.initializeApp({ 
+  credential: admin.credential.cert(serviceAccount)
+});
+
 
 client.connect(err => {
     const booksCollection = client.db("bookShop").collection("books");
@@ -54,6 +63,52 @@ client.connect(err => {
         console.log("delete this",id);
         booksCollection.findOneAndDelete({_id: id})
         .then(documents => res.send(documents.deletedCount > 0))
+    })
+    
+});
+
+client.connect(err => {
+    const booksCollection = client.db("bookShop").collection("orders");
+
+    app.post('/addOrder', (req, res) => {
+        const newOrder = req.body;
+        booksCollection.insertOne(newOrder)
+            .then(result => {
+                res.send(result.insertedCount > 0);
+            })
+        console.log(newOrder);
+    })
+
+    app.get('/orders', (req, res) => {
+        const bearer = req.headers.authorization;
+        if (bearer && bearer.startsWith('Bearer ')) {
+            const idToken = bearer.split(' ')[1];
+            console.log({ idToken });
+            admin
+                .auth()
+                .verifyIdToken(idToken)
+                .then((decodedToken) => {
+                    const tokenEmail = decodedToken.email;
+                    const queryEmail = req.query.email;
+                    console.log(tokenEmail, queryEmail);
+                    if (tokenEmail === queryEmail) {
+                        booksCollection.find({ email: req.query.email })
+                            .toArray((err, documents) => {
+                                res.status(200).send(documents)
+                            })
+                    }
+                    else{
+                        res.status(401).send('un-authorized access')
+                    }
+                })
+                .catch((error) => { 
+                    // Handle error
+                });
+             }
+             else{
+                 res.status(401).send('un-authorized access')
+             }
+
     })
     
 });
